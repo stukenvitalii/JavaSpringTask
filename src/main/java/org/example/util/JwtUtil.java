@@ -1,8 +1,12 @@
 package org.example.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.example.model.Admin;
+import org.example.model.Company;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -18,23 +22,24 @@ public class JwtUtil {
 	private static final long EXPIRATION_TIME = 3600000; // 1 час в миллисекундах
 
 	private final SecretKey key;
+	private final ObjectMapper objectMapper;
 
 	public JwtUtil() {
 		this.key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+		this.objectMapper = new ObjectMapper();
 	}
 
 	/**
 	 * Генерирует JWT токен с информацией о компании и админе
 	 */
-	public String generateToken(int adminId, String login, int companyId) {
+	public String generateToken(Admin admin, Company company) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("adminId", adminId);
-		claims.put("login", login);
-		claims.put("companyId", companyId);
+		claims.put("admin", convertToMap(admin));
+		claims.put("company", convertToMap(company));
 
 		return Jwts.builder()
 				.claims(claims)
-				.subject(login)
+				.subject(admin.getLogin())
 				.issuedAt(new Date())
 				.expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
 				.signWith(key)
@@ -53,24 +58,21 @@ public class JwtUtil {
 	}
 
 	/**
-	 * Извлекает ID админа из токена
+	 * Извлекает объект Admin из токена
 	 */
-	public Integer getAdminId(String token) {
-		return extractClaims(token).get("adminId", Integer.class);
+	public Admin getAdmin(String token) {
+		Claims claims = extractClaims(token);
+		Map<String, Object> adminMap = claims.get("admin", Map.class);
+		return objectMapper.convertValue(adminMap, Admin.class);
 	}
 
 	/**
-	 * Извлекает логин из токена
+	 * Извлекает объект Company из токена
 	 */
-	public String getLogin(String token) {
-		return extractClaims(token).get("login", String.class);
-	}
-
-	/**
-	 * Извлекает ID компании из токена
-	 */
-	public Integer getCompanyId(String token) {
-		return extractClaims(token).get("companyId", Integer.class);
+	public Company getCompany(String token) {
+		Claims claims = extractClaims(token);
+		Map<String, Object> companyMap = claims.get("company", Map.class);
+		return objectMapper.convertValue(companyMap, Company.class);
 	}
 
 	/**
@@ -94,5 +96,11 @@ public class JwtUtil {
 		}
 		return null;
 	}
-}
 
+	/**
+	 * Конвертирует объект в Map для JWT claims
+	 */
+	private Map<String, Object> convertToMap(Object obj) {
+		return objectMapper.convertValue(obj, new TypeReference<Map<String, Object>>() {});
+	}
+}

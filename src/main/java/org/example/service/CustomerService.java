@@ -22,19 +22,12 @@ public class CustomerService {
 	/**
 	 * Ищет клиента по номеру телефона с учетом маски компании
 	 * @param phone введенный номер телефона (может быть как "+7 (913) 608-55-55", так и "79136085555")
-	 * @param companyId ID компании из JWT токена
+	 * @param company компания в которой ищем клиента
 	 * @return CustomerResponse с отформатированным номером или null если не найден
 	 * @throws IllegalArgumentException если номер не соответствует формату маски компании
 	 * @throws RuntimeException если компания не найдена
 	 */
-	public CustomerResponse findByPhone(String phone, int companyId) {
-		// Получаем компанию с её маской
-		Company company = companyRepository.getCompanyById(companyId);
-		if (company == null) {
-			log.error("Company not found with id: {}", companyId);
-			throw new RuntimeException("Компания не найдена");
-		}
-
+	public CustomerResponse findByPhone(String phone, Company company) {
 		// Приводим номер телефона к формату маски (выбросит IllegalArgumentException если формат неверный)
 		String formattedPhone;
 		try {
@@ -54,7 +47,7 @@ public class CustomerService {
 				.orElse(null);
 
 		if (customer == null) {
-			log.info("Customer not found with phone: {} (normalized: {}) for company: {}", phone, normalizedPhone, companyId);
+			log.info("Customer not found with phone: {} (normalized: {}) for company: {}", phone, normalizedPhone, company.getCompanyId());
 			return null;
 		}
 

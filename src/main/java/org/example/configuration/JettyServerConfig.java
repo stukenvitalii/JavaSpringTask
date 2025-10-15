@@ -4,6 +4,7 @@ import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -23,6 +24,7 @@ public class JettyServerConfig {
 		context.register(AppConfig.class);
 		context.register(WebConfig.class);
 		context.register(CorsConfig.class);
+		context.register(SecurityConfig.class);
 
 		// Создаем ServletContextHandler
 		ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.SESSIONS);
@@ -35,13 +37,13 @@ public class JettyServerConfig {
 		context.setServletContext(servletContextHandler.getServletContext());
 		context.refresh();
 
-		// Регистрируем JWT фильтр
+		// Регистрируем Spring Security Filter Chain
 		servletContextHandler.addFilter(
 				new org.eclipse.jetty.ee10.servlet.FilterHolder(
-						context.getBean(org.example.filter.JwtAuthenticationFilter.class)
+						context.getBean(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME, jakarta.servlet.Filter.class)
 				),
 				"/*",
-				EnumSet.of(DispatcherType.REQUEST)
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC, DispatcherType.FORWARD, DispatcherType.INCLUDE)
 		);
 
 		// Регистрируем DispatcherServlet
