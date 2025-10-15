@@ -10,6 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Company {
-	private int companyId;
+	private int id;
 	private String phoneMask;
 }

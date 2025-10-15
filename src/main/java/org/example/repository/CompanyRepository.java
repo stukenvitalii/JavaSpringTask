@@ -15,14 +15,7 @@ public class CompanyRepository {
 
 		return jdbcClient.sql(sql)
 				.param(companyId)
-				.query(rs -> {
-					if (rs.next()) {
-						return new Company(
-								rs.getInt("id"),
-								rs.getString("phoneMask")
-						);
-					}
-					return null;
-				});
+				.query(Company.class)
+				.single();
 	}
 }

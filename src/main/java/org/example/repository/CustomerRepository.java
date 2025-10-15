@@ -19,13 +19,7 @@ public class CustomerRepository {
 
 		return jdbcClient.sql(sql)
 				.param(phone)
-				.param(company.getCompanyId())
-				.query((row, meta) -> {
-					Customer customer = new Customer();
-					customer.setCustomerId(row.getInt("id"));
-					customer.setFio(row.getString("fio"));
-					customer.setPhone(row.getString("phone"));
-					return customer;
-				}).optional();
+				.param(company.getId())
+				.query(Customer.class).optional();
 	}
 }

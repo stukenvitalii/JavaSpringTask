@@ -18,11 +18,7 @@ public class AdminRepository {
 		return jdbcClient.sql(sql)
 				.param(login)
 				.param(password)
-				.query((rs, rowNum) -> new Admin(
-						rs.getInt("id"),
-						rs.getString("login"),
-						rs.getString("password")
-				))
+				.query(Admin.class)
 				.optional();
 	}
 

@@ -25,7 +25,7 @@ public class AuthService {
 		).orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
 		// Получаем ID компании для админа
-		Integer companyId = adminRepository.getCompanyIdByAdminId(admin.getAdminId())
+		Integer companyId = adminRepository.getCompanyIdByAdminId(admin.getId())
 				.orElseThrow(() -> new RuntimeException("Company not found for admin"));
 
 		// Получаем полный объект Company

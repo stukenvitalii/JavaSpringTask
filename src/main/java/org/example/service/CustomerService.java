@@ -7,27 +7,29 @@ import org.example.model.Company;
 import org.example.model.Customer;
 import org.example.repository.CompanyRepository;
 import org.example.repository.CustomerRepository;
+import org.example.security.JwtAuthentication;
 import org.example.util.PhoneFormatter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerService {
-
-	private final CompanyRepository companyRepository;
 	private final CustomerRepository customerRepository;
 	private final PhoneFormatter phoneFormatter;
 
 	/**
 	 * Ищет клиента по номеру телефона с учетом маски компании
 	 * @param phone введенный номер телефона (может быть как "+7 (913) 608-55-55", так и "79136085555")
-	 * @param company компания в которой ищем клиента
 	 * @return CustomerResponse с отформатированным номером или null если не найден
 	 * @throws IllegalArgumentException если номер не соответствует формату маски компании
 	 * @throws RuntimeException если компания не найдена
 	 */
-	public CustomerResponse findByPhone(String phone, Company company) {
+	public CustomerResponse findByPhone(String phone) {
+		JwtAuthentication authentication = (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+		Company company = authentication.getCompany();
+
 		// Приводим номер телефона к формату маски (выбросит IllegalArgumentException если формат неверный)
 		String formattedPhone;
 		try {
@@ -47,7 +49,7 @@ public class CustomerService {
 				.orElse(null);
 
 		if (customer == null) {
-			log.info("Customer not found with phone: {} (normalized: {}) for company: {}", phone, normalizedPhone, company.getCompanyId());
+			log.info("Customer not found with phone: {} (normalized: {}) for company: {}", phone, normalizedPhone, company.getId());
 			return null;
 		}
 
