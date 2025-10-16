@@ -16,7 +16,7 @@
     <logger name="org.example" level="INFO"/>
 
     <!-- Корневой логгер -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

@@ -30,9 +30,8 @@ public class AuthService {
 
 		// Получаем полный объект Company
 		Company company = companyRepository.getCompanyById(companyId);
-		if (company == null) {
+		if (company == null)
 			throw new RuntimeException("Company not found");
-		}
 
 		// Генерируем JWT токен с целыми объектами Admin и Company
 		String token = jwtUtil.generateToken(admin, company);

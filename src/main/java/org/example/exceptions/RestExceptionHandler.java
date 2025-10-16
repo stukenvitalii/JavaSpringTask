@@ -15,8 +15,8 @@ public class RestExceptionHandler {
 		return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
-	@ExceptionHandler(Exception.class)
-	public org.springframework.http.ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
+	@ExceptionHandler(RuntimeException.class)
+	public org.springframework.http.ResponseEntity<ErrorResponse> handleGeneralException(RuntimeException ex) {
 		ErrorResponse errorResponse = new ErrorResponse("Internal server error");
 		return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}

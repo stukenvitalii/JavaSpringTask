@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.8);
+            font-size: 1.1rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            min-height: 100px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .result.success {
+            border-left-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .result.error {
+            border-left-color: #dc3545;
+            background: #fff8f8;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .json-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔧 API Tester</h1>
+        <p>Тестирование API endpoints</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('auth')">🔐 Authentication</div>
+        <div class="tab" onclick="switchTab('search')">🔍 Search</div>
+    </div>
+
+    <!-- Authentication Tab -->
+    <div id="auth-tab" class="tab-content active">
+        <div class="section">
+            <h2 class="section-title">Авторизация</h2>
+
+            <div class="form-group">
+                <label for="port">Порт:</label>
+                <input type="text" id="port" placeholder="Введите порт (например: 8080)" value="8080">
+            </div>
+
+            <div class="form-group">
+                <label for="login">Логин:</label>
+                <input type="text" id="login" placeholder="Введите логин">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" placeholder="Введите пароль">
+            </div>
+
+            <button class="btn" onclick="sendAuthRequest()">🚀 Отправить запрос</button>
+
+            <div class="loading" id="auth-loading">⏳ Отправка запроса...</div>
+
+            <div class="result" id="auth-result">
+                <div style="color: #666; text-align: center;">
+                    Результат авторизации появится здесь
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Tab -->
+    <div id="search-tab" class="tab-content">
+        <div class="section">
+            <h2 class="section-title">Поиск</h2>
+
+            <div class="form-group">
+                <label for="token">Токен:</label>
+                <input type="text" id="token" placeholder="Введите токен авторизации">
+            </div>
+
+            <div class="form-group">
+                <label for="search-query">Строка поиска:</label>
+                <input type="text" id="search-query" placeholder="Введите поисковый запрос">
+            </div>
+
+            <button class="btn" onclick="sendSearchRequest()">🔍 Выполнить поиск</button>
+
+            <div class="loading" id="search-loading">⏳ Выполнение поиска...</div>
+
+            <div class="result" id="search-result">
+                <div style="color: #666; text-align: center;">
+                    Результаты поиска появятся здесь
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function showLoading(type) {
+        document.getElementById(type + '-loading').classList.add('show');
+    }
+
+    function hideLoading(type) {
+        document.getElementById(type + '-loading').classList.remove('show');
+    }
+
+    function showResult(type, data, isError = false) {
+        const resultElement = document.getElementById(type + '-result');
+        resultElement.innerHTML = `<div class="json-code">${JSON.stringify(data, null, 2)}</div>`;
+        resultElement.className = `result ${isError ? 'error' : 'success'}`;
+    }
+
+    function showError(type, message) {
+        const resultElement = document.getElementById(type + '-result');
+        resultElement.innerHTML = `<div style="color: #dc3545; font-weight: 600;">❌ ${message}</div>`;
+        resultElement.className = 'result error';
+    }
+
+    async function sendAuthRequest() {
+        const port = document.getElementById('port').value;
+        const login = document.getElementById('login').value;
+        const password = document.getElementById('password').value;
+
+        if (!port || !login || !password) {
+            showError('auth', 'Пожалуйста, заполните все поля');
+            return;
+        }
+
+        showLoading('auth');
+
+        try {
+            // Имитация API запросаcof
+            const response = await fetch(`http://localhost:${port}/auth/login`, {method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({login, password})
+            })
+            showResult('auth', await response.json());
+
+            // Автоматически заполняем токен в поиске
+            document.getElementById('token').value = response.token;
+
+        } catch (error) {
+            showError('auth', 'Ошибка при авторизации: ' + error.message);
+        } finally {
+            hideLoading('auth');
+        }
+    }
+
+    async function sendSearchRequest() {
+        const token = document.getElementById('token').value;
+        const query = document.getElementById('search-query').value;
+
+        if (!token || !query) {
+            showError('search', 'Пожалуйста, заполните все поля');
+            return;
+        }
+
+        showLoading('search');
+
+        try {
+            const port = document.getElementById('port').value;
+            // Имитация поискового запроса
+            const response = await fetch(`http://localhost:${port}/customers`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({search: query})
+            });
+
+            showResult('search', await response.json());
+
+        } catch (error) {
+            showError('search', 'Ошибка при поиске: ' + error.message);
+        } finally {
+            hideLoading('search');
+        }
+    }
+
+    // Обработка нажатия Enter в полях ввода
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const activeTab = document.querySelector('.tab-content.active').id;
+                    if (activeTab === 'auth-tab') {
+                        sendAuthRequest();
+                    } else {
+                        sendSearchRequest();
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
